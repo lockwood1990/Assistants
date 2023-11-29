@@ -273,8 +273,16 @@ class OpenAIAssistant {
                 "OpenAI API Returned Unexpected HTTP code $http_code. " . print_r($response, true)
             );
         }
+        $response = json_decode($response, true);
+
+        if ($response['last_error']) {
+            throw new \Exception(
+                "OpenAI API Returned error. " . 
+                print_r($response['last_error'], true)
+            );
+        }
         curl_close($ch);
-        return json_decode($response, true);
+        return $response;
     }
 
     private function send_get_request($route)
