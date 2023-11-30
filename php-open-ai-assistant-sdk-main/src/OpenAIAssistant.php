@@ -95,7 +95,28 @@ class OpenAIAssistant {
         $response = $this->send_get_request("/threads/{$thread_id}");
 
         if (empty($response['id'])) {
-            throw new \Exception('Unable to retrive a thread');
+            throw new \Exception('Unable to retrieve a thread');
+        }
+        return $response;
+    }
+
+    public function delete_thread($thread_id)
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "{$this->base_url}/threads/{$thread_id}");
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            "Authorization: Bearer {$this->api_key}",
+            'Content-Type: application/json',
+            'Accept: application/json',
+            $this->version_header
+        ));
+        $response = $this->execute_request($ch);
+        exit(json_encode($response));
+
+        if (empty($response['deleted'])) {
+            throw new \Exception('Unable to delete the thread');
         }
         return $response;
     }
@@ -273,8 +294,16 @@ class OpenAIAssistant {
                 "OpenAI API Returned Unexpected HTTP code $http_code. " . print_r($response, true)
             );
         }
+        $response = json_decode($response, true);
+
+        if ($response['last_error']) {
+            throw new \Exception(
+                "OpenAI API Returned error. " . 
+                print_r($response['last_error'], true)
+            );
+        }
         curl_close($ch);
-        return json_decode($response, true);
+        return $response;
     }
 
     private function send_get_request($route)
