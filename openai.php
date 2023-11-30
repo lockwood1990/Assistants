@@ -36,7 +36,7 @@ function append_thread_list($filename, $thread_id)
 function delete_thread_list($filename, $thread_id)
 {
     $filtered_list = array();
-    $file = fopen($filename, 'w+');
+    $file = fopen($filename, 'a+');
 
     while ($row = fgets($file)) {
 
@@ -44,7 +44,10 @@ function delete_thread_list($filename, $thread_id)
             array_push($filtered_list, $row);
         }
     }
-    $data = implode(PHP_EOL, $filtered_list);
+    fclose($file);
+
+    $data = implode('', $filtered_list);
+    $file = fopen($filename, 'w+');
     fwrite($file, $data);
     fclose($file);
 }
