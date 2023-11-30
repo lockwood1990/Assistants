@@ -19,8 +19,8 @@
   </div>
 
   <div class="flex flex-col gap-12 lg:flex-row lg:w-full lg:justify-center">
-    <div class="flow-root pt-16 px-4">
-      <ul role="list" class="-mb-8 h-[420px]">
+    <div class="flow-root pt-10 px-4">
+      <ul role="list" class="-mb-8 h-[460px] overflow-y-auto">
 
         <?php foreach ($threads as $thread): ?>
           <li>
@@ -36,17 +36,22 @@
                     </svg>
                   </span>
                 </div>
-                <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                <div class="min-w-0 flex-1 items-center flex justify-between space-x-4">
                   <div>
-                    <?php if ($requested_thread_id == $thread['assistant_id']): ?>
-                      <p class="text-sm text-emerald-500"><a href="?thread_id=<?= $thread['assistant_id'] ?>" class="font-medium text-emerald-500"><?= $thread['assistant_id'] ?></a></p>
+                    <?php if ($requested_thread_id == $thread['thread_id']): ?>
+                      <p class="text-sm text-emerald-500"><a href="?thread_id=<?= $thread['thread_id'] ?>" class="font-medium text-emerald-500"><?= $thread['thread_id'] ?></a></p>
                     <?php else: ?>
-                      <p class="text-sm text-gray-500"><a href="?thread_id=<?= $thread['assistant_id'] ?>" class="font-medium text-gray-900"><?= $thread['assistant_id'] ?></a></p>
+                      <p class="text-sm text-gray-500"><a href="?thread_id=<?= $thread['thread_id'] ?>" class="font-medium text-gray-900"><?= $thread['thread_id'] ?></a></p>
                     <?php endif; ?>
                   </div>
                   <div class="text-right text-sm whitespace-nowrap text-gray-500">
                     <time datetime="2020-09-20"><?= $thread['timestamp'] ?></time>
                   </div>
+                </div>
+                <div id="thread-delete-btn" data-thread-id="<?= $thread['thread_id'] ?>" class="rounded-full px-2.5 flex items-center cursor-pointer">
+                  <svg class="w-5 h-5 text-red-500 text-sm" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path clip-rule="evenodd" fill-rule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 013.878.512.75.75 0 11-.256 1.478l-.209-.035-1.005 13.07a3 3 0 01-2.991 2.77H8.084a3 3 0 01-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 01-.256-1.478A48.567 48.567 0 017.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 013.369 0c1.603.051 2.815 1.387 2.815 2.951zm-6.136-1.452a51.196 51.196 0 013.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 00-6 0v-.113c0-.794.609-1.428 1.364-1.452zm-.355 5.945a.75.75 0 10-1.5.058l.347 9a.75.75 0 101.499-.058l-.346-9zm5.48.058a.75.75 0 10-1.498-.058l-.347 9a.75.75 0 001.5.058l.345-9z"></path>
+                  </svg>
                 </div>
               </div>
             </div>
@@ -102,6 +107,20 @@
 
     document.getElementById("prompts-wrapper").lastElementChild.scrollIntoView({ behavior: "smooth" });
   });
+
+  document.getElementById("thread-delete-btn").addEventListener(
+    "click",
+    async (event) => {
+      const thread_id = event.currentTarget.dataset.threadId;
+      const res = await fetch("/delete_thread.php?thread_id=" + thread_id);
+
+      if (res.status === 500) {
+        window.alert("Sorry for the inconvenience, an error occurred.");
+      } else if (res.status === 200) {
+        location.reload();
+      }
+    }
+  );
 
   document.getElementById("thread-btn").addEventListener("click", async (event) => {
     event.currentTarget.setAttribute("disabled", "");

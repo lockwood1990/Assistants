@@ -1,9 +1,9 @@
 <?php
 
-require_once(__DIR__ . '/openai.php');
-
 // Do not process further exit, if get an empty request
 if (empty($_GET['query']) || empty($_GET['thread_id'])) exit();
+
+require_once(__DIR__ . '/openai.php');
 
 $openai->add_message($_GET['thread_id'], $_GET['query']);
 $openai->run_thread($_GET['thread_id']);

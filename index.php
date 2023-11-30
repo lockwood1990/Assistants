@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $threads = get_thread_list($thread_list_filename);
     $requested_thread_id = !empty($_GET['thread_id'])
         ? $_GET['thread_id']
-        : end($threads)['assistant_id'];
+        : end($threads)['thread_id'];
 
     if (empty($requested_thread_id)) {
         $requested_thread_id = $openai->create_thread('Hello');

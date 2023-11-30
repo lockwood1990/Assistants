@@ -95,7 +95,28 @@ class OpenAIAssistant {
         $response = $this->send_get_request("/threads/{$thread_id}");
 
         if (empty($response['id'])) {
-            throw new \Exception('Unable to retrive a thread');
+            throw new \Exception('Unable to retrieve a thread');
+        }
+        return $response;
+    }
+
+    public function delete_thread($thread_id)
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "{$this->base_url}/threads/{$thread_id}");
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            "Authorization: Bearer {$this->api_key}",
+            'Content-Type: application/json',
+            'Accept: application/json',
+            $this->version_header
+        ));
+        $response = $this->execute_request($ch);
+        exit(json_encode($response));
+
+        if (empty($response['deleted'])) {
+            throw new \Exception('Unable to delete the thread');
         }
         return $response;
     }
