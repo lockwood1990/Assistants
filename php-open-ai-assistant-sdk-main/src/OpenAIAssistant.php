@@ -113,12 +113,11 @@ class OpenAIAssistant {
             $this->version_header
         ));
         $response = $this->execute_request($ch);
-        exit(json_encode($response));
 
         if (empty($response['deleted'])) {
             throw new \Exception('Unable to delete the thread');
         }
-        return $response;
+        return $response['id'];
     }
 
     public function add_message($thread_id, $content, $role = 'user')
