@@ -1,53 +1,44 @@
 <?php
 
+session_start();
+
 // Include the OpenAI Assistant PHP SDK
 require_once(
     __DIR__ . '/php-open-ai-assistant-sdk-main/src/OpenAIAssistant.php'
 );
 
-$api_key = '';
-$assistant_id = '';
+$api_key = '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';
+$assistant_id = 'asst_Uyq4THiwFk60UEMPQsb6T4oN';
 $openai = new \Erdum\OpenAIAssistant($api_key, $assistant_id);
 
-function get_thread_list($filename)
+function get_thread_list()
 {
-    $file = fopen($filename, 'a+');
     $threads = array();
 
-    while ($row = fgets($file)) {
-        $assistant = explode(' - ', $row);
-        array_push($threads, array(
-            'thread_id' => trim($assistant[1]),
-            'timestamp' => $assistant[0]
-        ));
-    }
-    fclose($file);
+    if (empty($_SESSION['threads'])) return $threads;
+    $threads = unserialize($_SESSION['threads']);
+
     return $threads;
 }
 
-function append_thread_list($filename, $thread_id)
+function append_thread_list($thread_id)
 {
-    $file = fopen($filename, 'a+');
-    $entry = date('Y-m-d H:i:s') . ' - ' . $thread_id . PHP_EOL;
-    fwrite($file, $entry);
-    fclose($file);
+    $threads = get_thread_list();
+    array_push($threads, array(
+        'thread_id' => $thread_id,
+        'timestamp' => date('Y-m-d H:i:s')
+    ));
+    $_SESSION['threads'] = serialize($threads);
 }
 
-function delete_thread_list($filename, $thread_id)
+function delete_thread_list($thread_id)
 {
-    $filtered_list = array();
-    $file = fopen($filename, 'a+');
-
-    while ($row = fgets($file)) {
-
-        if (!str_contains($row, $thread_id)) {
-            array_push($filtered_list, $row);
+    $threads = get_thread_list();
+    $filtered_threads = array_filter(
+        $threads,
+        function ($item) use ($thread_id) {
+            return $thread_id != $item['thread_id'];
         }
-    }
-    fclose($file);
-
-    $data = implode('', $filtered_list);
-    $file = fopen($filename, 'w+');
-    fwrite($file, $data);
-    fclose($file);
+    );
+    $_SESSION['threads'] = serialize($filtered_threads);
 }
